@@ -2,17 +2,15 @@ package com.mkaza.sherlock;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.mkaza.sherlock.model.ClusterableRow;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
-import org.apache.commons.math3.ml.clustering.DoublePoint;
 import org.apache.spark.ml.feature.HashingTF;
 import org.apache.spark.ml.feature.IDF;
 import org.apache.spark.ml.feature.IDFModel;
 import org.apache.spark.ml.feature.Tokenizer;
-import org.apache.spark.ml.linalg.SparseVector;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
@@ -25,8 +23,6 @@ import org.apache.spark.sql.types.StructType;
 public class TFIDFExample {
 
     public static void main(String[] args){
-
-
 
         // create a spark session
         SparkSession spark = SparkSession

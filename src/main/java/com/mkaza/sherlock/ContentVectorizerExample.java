@@ -1,6 +1,9 @@
 package com.mkaza.sherlock;
 
+import com.mkaza.sherlock.model.ClusterableDataPoint;
+import com.mkaza.sherlock.util.DbscanUtil;
 import org.apache.commons.math3.ml.clustering.Cluster;
+import org.apache.commons.math3.ml.clustering.Clusterable;
 import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import org.apache.spark.ml.feature.*;
 import org.apache.spark.sql.Dataset;
@@ -12,13 +15,37 @@ import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ContentVectorizerExample {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws URISyntaxException, IOException {
+
+//        Dataset<Row> rescaledData = getTfIdfDataSet();
+//
+//        List<ClusterableRow> rescaledDataRows = rescaledData.collectAsList().stream().map(ClusterableRow::new).collect(Collectors.toList());
+//
+//        List<double[]> rescaledDataRowsPoints = rescaledDataRows.stream().map(ClusterableRow::getPoint).collect(Collectors.toList());
+
+        List<Clusterable> rescaledDataRows = parseResourcePoints();
+
+        double epsilon = DbscanUtil.calcAverageEpsilon(rescaledDataRows, 3);
+
+        int minPts = DbscanUtil.calcMinPts(rescaledDataRows.size());
+
+        final DBSCANClusterer<Clusterable> transformer =
+                new DBSCANClusterer<>(epsilon, minPts);
+        final List<Cluster<Clusterable>> clusters = transformer.cluster(rescaledDataRows);
+    }
+
+    private static Dataset<Row> getTfIdfDataSet() {
         // create a spark session
         SparkSession spark = SparkSession
                 .builder()
@@ -57,12 +84,31 @@ public class ContentVectorizerExample {
 
         Dataset<Row> rescaledData =  idfModel.transform(cvmData);
 
-        List<ClusterableRow> rescaledDataRows = rescaledData.collectAsList().stream().map(ClusterableRow::new).collect(Collectors.toList());
+        return rescaledData;
+    }
 
-        List<double[]> rescaledDataRowsPoints = rescaledDataRows.stream().map(ClusterableRow::getPoint).collect(Collectors.toList());
+    private static List<Clusterable> parseResourcePoints() throws URISyntaxException, IOException {
+        URL xAxis = ContentVectorizerExample.class.getResource("/xAxis.txt");
+        URL yAxis = ContentVectorizerExample.class.getResource("/yAxis.txt");
 
-        final DBSCANClusterer<ClusterableRow> transformer =
-                new DBSCANClusterer<>(1.1, 1);
-        final List<Cluster<ClusterableRow>> clusters = transformer.cluster(rescaledDataRows);
+        String xPointData = Files.readString(Paths.get(xAxis.toURI())).replaceAll("([\\r\\n])", "");
+        String yPointData = Files.readString(Paths.get(yAxis.toURI())).replaceAll("([\\r\\n])", "");
+
+        double[] xAxisArray = Arrays.stream(xPointData.split(" "))
+                .filter(item-> !item.isEmpty())
+                .mapToDouble(Double::valueOf)
+                .toArray();
+        double[] yAxisArray = Arrays.stream(yPointData.split(" "))
+                .filter(item-> !item.isEmpty())
+                .mapToDouble(Double::valueOf)
+                .toArray();
+
+        List<Clusterable> dataPoints = new ArrayList<>();
+
+        for (int i = 0; i < xAxisArray.length; i++) {
+            dataPoints.add(new ClusterableDataPoint(new double[]{xAxisArray[i], yAxisArray[i]}));
+        }
+
+        return dataPoints;
     }
 }

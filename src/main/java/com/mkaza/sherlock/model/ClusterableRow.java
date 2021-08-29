@@ -1,4 +1,4 @@
-package com.mkaza.sherlock;
+package com.mkaza.sherlock.model;
 
 import org.apache.commons.math3.ml.clustering.Clusterable;
 import org.apache.spark.ml.linalg.SparseVector;
@@ -24,5 +24,9 @@ public class ClusterableRow implements Clusterable {
         }
 
         return points;
+    }
+
+    public String getLogText() {
+        return row.getAs("sentence");
     }
 }

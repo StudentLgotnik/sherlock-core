@@ -4,3 +4,9 @@ We love animals
 We hate people
 She hate cat
 People hate animals
+Computer run algorithm
+Computer store data
+Algorithm process data
+Data store information
+Algorithm run thread
+Thread process algorithm
