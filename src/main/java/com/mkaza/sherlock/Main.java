@@ -3,8 +3,10 @@ package com.mkaza.sherlock;
 import com.mkaza.sherlock.clusterer.SherlockClusterer;
 import com.mkaza.sherlock.estimator.TfidfEstimator;
 import com.mkaza.sherlock.model.ClusterableRow;
+import com.mkaza.sherlock.model.RowStruct;
 import com.mkaza.sherlock.parser.LogParser;
-import com.mkaza.sherlock.parser.MockParser;
+import com.mkaza.sherlock.parser.LogParserFactory;
+import com.mkaza.sherlock.parser.LogParserType;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -17,6 +19,7 @@ import org.apache.spark.sql.types.StructType;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -27,20 +30,21 @@ public class Main {
     public static void main(String[] args) throws URISyntaxException {
 
         //Get logs as separate text units
-        LogParser parser = new MockParser();
-        List<String> logs = parser.parseFile(Paths.get(Objects.requireNonNull(ContentVectorizerExample.class.getResource("/tfidf.txt")).toURI()).toString());
-        System.out.println("Collected logs: \n" + String.join("\n", logs));
+        LogParser parser = LogParserFactory.getParser(LogParserType.MOCK);
+        Map<String, String> logs = parser.parse(Paths.get(Objects.requireNonNull(ContentVectorizerExample.class.getResource("/tfidf.txt")).toURI()).toString());
+        System.out.println("Collected logs: \n" + String.join("\n", logs.values()));
 
         //Generate dataset from rows
-        List<Row> rows = logs.stream().map(RowFactory::create).collect(Collectors.toList());
+        List<Row> rows = logs.entrySet().stream().map( e -> RowFactory.create(e.getKey(), e.getValue())).collect(Collectors.toList());
 
         StructType schema = new StructType(new StructField[]{
-                new StructField("sentence", DataTypes.StringType, false, Metadata.empty())
+                new StructField(RowStruct.TEST_NAME.field(), DataTypes.StringType, false, Metadata.empty()),
+                new StructField(RowStruct.TEST_ERRORS.field(), DataTypes.StringType, false, Metadata.empty())
         });
 
-        TfidfEstimator tfidfEstimator = new TfidfEstimator();
+        TfidfEstimator tfidfEstimator = TfidfEstimator.createForSchema(schema);
 
-        Dataset<Row> dataset = tfidfEstimator.estimate(rows, schema);
+        Dataset<Row> dataset = tfidfEstimator.estimate(rows);
 
         //Cluster dataset
         SherlockClusterer clusterer = new SherlockClusterer();
@@ -51,7 +55,7 @@ public class Main {
         clusters.forEach(
                 c -> System.out.println(
                                 "Cluster: " + clusters.indexOf(c) +
-                                " Data: \n" + c.getPoints().stream().map(ClusterableRow::getLogText).collect(Collectors.joining(",\n")) +
+                                " Data: \n" + c.getPoints().stream().map(p -> p.getTestErrors().toString()).collect(Collectors.joining(",\n")) +
                                 LINE_SPLITTER)
         );
     }

@@ -15,42 +15,6 @@ import java.util.List;
 
 public class DbscanExample {
 
-//    public static void main(String[] args) throws FileNotFoundException, IOException {
-//        File[] files = getFiles("./files2/");
-//
-//        DBSCANClusterer dbscan = new DBSCANClusterer(.05, 50);
-//        List<Cluster<DoublePoint>> cluster = dbscan.cluster(getGPS(files));
-//
-//        for(Cluster<DoublePoint> c: cluster){
-//            System.out.println(c.getPoints().get(0));
-//        }
-//    }
-//
-//    private static File[] getFiles(String args) {
-//        return new File(args).listFiles();
-//    }
-//
-//    private static List<DoublePoint> getGPS(File[] files) throws FileNotFoundException, IOException {
-//
-//        List<DoublePoint> points = new ArrayList<DoublePoint>();
-//        for (File f : files) {
-//            BufferedReader in = new BufferedReader(new FileReader(f));
-//            String line;
-//
-//            while ((line = in.readLine()) != null) {
-//                try {
-//                    double[] d = new double[2];
-//                    d[0] = Double.parseDouble(line.split(",")[1]);
-//                    d[1] = Double.parseDouble(line.split(",")[2]);
-//                    points.add(new DoublePoint(d));
-//                } catch (ArrayIndexOutOfBoundsException e) {
-//                } catch(NumberFormatException e){
-//                }
-//            }
-//        }
-//        return points;
-//    }
-
     @Test
     public void testCluster() {
         // Test data generated using: http://people.cs.nctu.edu.tw/~rsliang/dbscan/testdatagen.html

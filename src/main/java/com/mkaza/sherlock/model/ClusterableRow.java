@@ -16,7 +16,7 @@ public class ClusterableRow implements Clusterable {
 
     @Override
     public double[] getPoint() {
-        SparseVector vector = row.getAs(3);
+        SparseVector vector = row.getAs(RowStruct.FEATURES.field());
 
         double[] points =  new double[vector.size()];
         for (int i = 0; i < vector.values().length; i++) {
@@ -26,7 +26,23 @@ public class ClusterableRow implements Clusterable {
         return points;
     }
 
-    public String getLogText() {
-        return row.getAs("sentence");
+    public <T> T getTestName() {
+        return row.getAs(RowStruct.TEST_NAME.field());
+    }
+
+    public <T> T getTestErrors() {
+        return row.getAs(RowStruct.TEST_ERRORS.field());
+    }
+
+    public <T> T getWordsDictionary() {
+        return row.getAs(RowStruct.WORDS_DICTIONARY.field());
+    }
+
+    public <T> T getRawFeatures() {
+        return row.getAs(RowStruct.RAW_FEATURES.field());
+    }
+
+    public <T> T getFeatures() {
+        return row.getAs(RowStruct.FEATURES.field());
     }
 }

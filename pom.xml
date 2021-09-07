@@ -37,21 +37,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- ELKI -->
-        <!-- https://mvnrepository.com/artifact/de.lmu.ifi.dbs.elki/elki -->
-        <dependency>
-            <groupId>de.lmu.ifi.dbs.elki</groupId>
-            <artifactId>elki</artifactId>
-            <version>0.7.5</version>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/de.lmu.ifi.dbs.elki/elki-index -->
-        <dependency>
-            <groupId>de.lmu.ifi.dbs.elki</groupId>
-            <artifactId>elki-index</artifactId>
-            <version>0.7.5</version>
-        </dependency>
-
     </dependencies>
 
 </project>
