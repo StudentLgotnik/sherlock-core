@@ -54,8 +54,8 @@ public class Main {
         List<Cluster<ClusterableRow>> clusters = clusterer.cluster(clusterableDataSet);
         clusters.forEach(
                 c -> System.out.println(
-                                "Cluster: " + clusters.indexOf(c) +
-                                " Data: \n" + c.getPoints().stream().map(p -> p.getTestErrors().toString()).collect(Collectors.joining(",\n")) +
+                                "Cluster: #" + clusters.indexOf(c) + " size: " + c.getPoints().size() + " Data: \n" +
+                                c.getPoints().stream().map(p -> "Test name: " + p.getTestName() + " Error:" + p.getTestErrors().toString()).collect(Collectors.joining(",\n")) +
                                 LINE_SPLITTER)
         );
     }

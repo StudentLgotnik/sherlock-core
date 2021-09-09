@@ -8,8 +8,8 @@ public interface LogParser {
 
     /**
      * Parse logs from provided file
-     * @param logsFilesPath path to file with logs
+     * @param logFilePath path to file with logs
      * @return batch of test case and related errors from logs
      */
-    Map<String, String> parse(String logsFilesPath);
+    Map<String, String> parse(String logFilePath);
 }
