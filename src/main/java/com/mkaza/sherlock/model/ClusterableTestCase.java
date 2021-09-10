@@ -4,13 +4,11 @@ import org.apache.commons.math3.ml.clustering.Clusterable;
 import org.apache.spark.ml.linalg.SparseVector;
 import org.apache.spark.sql.Row;
 
-import java.util.Arrays;
-
-public class ClusterableRow implements Clusterable {
+public class ClusterableTestCase implements TestCase, Clusterable {
 
     private final Row row;
 
-    public ClusterableRow(Row row) {
+    public ClusterableTestCase(Row row) {
         this.row = row;
     }
 
@@ -32,17 +30,5 @@ public class ClusterableRow implements Clusterable {
 
     public <T> T getTestErrors() {
         return row.getAs(RowStruct.TEST_ERRORS.field());
-    }
-
-    public <T> T getWordsDictionary() {
-        return row.getAs(RowStruct.WORDS_DICTIONARY.field());
-    }
-
-    public <T> T getRawFeatures() {
-        return row.getAs(RowStruct.RAW_FEATURES.field());
-    }
-
-    public <T> T getFeatures() {
-        return row.getAs(RowStruct.FEATURES.field());
     }
 }

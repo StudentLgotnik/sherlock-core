@@ -1,9 +1,8 @@
-package com.mkaza.sherlock;
+package com.mkaza.sherlock.api;
 
 import com.mkaza.sherlock.clusterer.SherlockClusterer;
 import com.mkaza.sherlock.estimator.TfidfEstimator;
-import com.mkaza.sherlock.model.ClusterableTestCase;
-import com.mkaza.sherlock.model.RowStruct;
+import com.mkaza.sherlock.model.*;
 import com.mkaza.sherlock.parser.LogParser;
 import com.mkaza.sherlock.parser.LogParserFactory;
 import com.mkaza.sherlock.parser.LogParserType;
@@ -16,26 +15,30 @@ import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class Main {
+public class TestCaseSherlock implements Sherlock<TestCaseCluster> {
 
-    private static final String LINE_SPLITTER = "\n-------------------------------------";
+    private final SherlockConfig sherlockConfig;
 
-    public static void main(String[] args) throws URISyntaxException {
+    public TestCaseSherlock(SherlockConfig sherlockConfig) {
+        this.sherlockConfig = sherlockConfig;
+    }
 
-        //Get logs as separate text units
-        LogParser parser = LogParserFactory.getParser(LogParserType.MOCK);
-        Map<String, String> logs = parser.parse(Paths.get(Objects.requireNonNull(ContentVectorizerExample.class.getResource("/tfidf.txt")).toURI()).toString());
-        System.out.println("Collected logs: \n" + String.join("\n", logs.values()));
+    @Override
+    public List<TestCaseCluster> cluster() {
 
-        //Generate dataset from rows
-        List<Row> rows = logs.entrySet().stream().map( e -> RowFactory.create(e.getKey(), e.getValue())).collect(Collectors.toList());
+        LogParser parser = sherlockConfig.getParser() != null
+                ? sherlockConfig.getParser()
+                : LogParserFactory.getParser(LogParserType.XML);
+
+        Map<String, String> logs = parser.parse(sherlockConfig.getLogFilePath());
+
+        List<Row> rows = logs.entrySet().stream()
+                .map(e -> RowFactory.create(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
 
         StructType schema = new StructType(new StructField[]{
                 new StructField(RowStruct.TEST_NAME.field(), DataTypes.StringType, false, Metadata.empty()),
@@ -52,11 +55,7 @@ public class Main {
         List<ClusterableTestCase> clusterableDataSet = dataset.collectAsList().stream().map(ClusterableTestCase::new).collect(Collectors.toList());
 
         List<Cluster<ClusterableTestCase>> clusters = clusterer.cluster(clusterableDataSet);
-        clusters.forEach(
-                c -> System.out.println(
-                                "Cluster: #" + clusters.indexOf(c) + " size: " + c.getPoints().size() + " Data: \n" +
-                                c.getPoints().stream().map(p -> "Test name: " + p.getTestName() + " Error:" + p.getTestErrors().toString()).collect(Collectors.joining(",\n")) +
-                                LINE_SPLITTER)
-        );
+
+        return clusters.stream().map(TestCaseCluster::new).collect(Collectors.toList());
     }
 }

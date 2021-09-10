@@ -1,36 +1,19 @@
 package com.mkaza.sherlock.clusterer;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NonNull;
 import org.apache.commons.math3.ml.distance.DistanceMeasure;
 
+@Builder
+@Getter
 public class ClustererConfig {
 
     private double epsilon;
 
     private int minPts;
 
+    @NonNull
     private DistanceMeasure distanceMeasure;
 
-    public double getEpsilon() {
-        return epsilon;
-    }
-
-    public void setEpsilon(double epsilon) {
-        this.epsilon = epsilon;
-    }
-
-    public int getMinPts() {
-        return minPts;
-    }
-
-    public void setMinPts(int minPts) {
-        this.minPts = minPts;
-    }
-
-    public DistanceMeasure getDistanceMeasure() {
-        return distanceMeasure;
-    }
-
-    public void setDistanceMeasure(DistanceMeasure distanceMeasure) {
-        this.distanceMeasure = distanceMeasure;
-    }
 }
