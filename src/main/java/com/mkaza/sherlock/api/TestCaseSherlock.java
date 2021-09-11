@@ -17,6 +17,7 @@ import org.apache.spark.sql.types.StructType;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class TestCaseSherlock implements Sherlock<TestCaseCluster> {
@@ -30,7 +31,7 @@ public class TestCaseSherlock implements Sherlock<TestCaseCluster> {
     @Override
     public List<TestCaseCluster> cluster() {
 
-        LogParser parser = sherlockConfig.getParser() != null
+        LogParser parser = Objects.nonNull(sherlockConfig.getParser())
                 ? sherlockConfig.getParser()
                 : LogParserFactory.getParser(LogParserType.XML);
 
@@ -54,7 +55,9 @@ public class TestCaseSherlock implements Sherlock<TestCaseCluster> {
 
         List<ClusterableTestCase> clusterableDataSet = dataset.collectAsList().stream().map(ClusterableTestCase::new).collect(Collectors.toList());
 
-        List<Cluster<ClusterableTestCase>> clusters = clusterer.cluster(clusterableDataSet);
+        List<Cluster<ClusterableTestCase>> clusters = Objects.nonNull(sherlockConfig.getClustererConfig())
+                ? clusterer.cluster(clusterableDataSet, sherlockConfig.getClustererConfig())
+                : clusterer.cluster(clusterableDataSet);
 
         return clusters.stream().map(TestCaseCluster::new).collect(Collectors.toList());
     }
