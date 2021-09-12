@@ -1,19 +1,18 @@
-package com.mkaza.sherlock;
+package com.mkaza.sherlock.clusterer;
 
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.NullArgumentException;
 import org.apache.commons.math3.ml.clustering.Cluster;
-import org.apache.commons.math3.ml.clustering.DBSCANClusterer;
 import org.apache.commons.math3.ml.clustering.DoublePoint;
+import org.apache.commons.math3.ml.distance.EuclideanDistance;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.*;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-public class DbscanExample {
+public class SherlockClustererTest {
 
     @Test
     public void testCluster() {
@@ -84,9 +83,14 @@ public class DbscanExample {
                 new DoublePoint(new double[] { 30.66784126125276, 16.269703107886016 })
         };
 
-        final DBSCANClusterer<DoublePoint> transformer =
-                new DBSCANClusterer<DoublePoint>(2.0, 5);
-        final List<Cluster<DoublePoint>> clusters = transformer.cluster(Arrays.asList(points));
+        SherlockClusterer<DoublePoint> clusterer = new SherlockClusterer<>();
+
+        final List<Cluster<DoublePoint>> clusters = clusterer.cluster(
+                Arrays.asList(points),
+                ClustererConfig.builder()
+                        .epsilon(2.0).minPts(5)
+                        .distanceMeasure(new EuclideanDistance())
+                        .build());
 
         final List<DoublePoint> clusterOne =
                 Arrays.asList(points[3], points[4], points[5], points[6], points[7], points[8], points[9], points[10],
@@ -138,8 +142,14 @@ public class DbscanExample {
 
         };
 
-        final DBSCANClusterer<DoublePoint> clusterer = new DBSCANClusterer(3, 3);
-        List<Cluster<DoublePoint>> clusters = clusterer.cluster(Arrays.asList(points));
+        SherlockClusterer<DoublePoint> clusterer = new SherlockClusterer<>();
+
+        final List<Cluster<DoublePoint>> clusters = clusterer.cluster(
+                Arrays.asList(points),
+                ClustererConfig.builder()
+                        .epsilon(3.0).minPts(3)
+                        .distanceMeasure(new EuclideanDistance())
+                        .build());
 
         Assert.assertEquals(1, clusters.size());
 
@@ -148,31 +158,33 @@ public class DbscanExample {
         Assert.assertTrue(clusters.get(0).getPoints().containsAll(clusterOne));
     }
 
-    @Test
-    public void testGetEps() {
-        final DBSCANClusterer<DoublePoint> transformer = new DBSCANClusterer(2.0, 5);
-        Assert.assertEquals(2.0, transformer.getEps(), 0.0);
-    }
-
-    @Test
-    public void testGetMinPts() {
-        final DBSCANClusterer<DoublePoint> transformer = new DBSCANClusterer(2.0, 5);
-        Assert.assertEquals(5, transformer.getMinPts());
-    }
-
     @Test(expected = MathIllegalArgumentException.class)
     public void testNegativeEps() {
-        new DBSCANClusterer<DoublePoint>(-2.0, 5);
+        SherlockClusterer<DoublePoint> clusterer = new SherlockClusterer<>();
+
+        final List<Cluster<DoublePoint>> clusters = clusterer.cluster(
+                Collections.emptyList(),
+                ClustererConfig.builder()
+                        .epsilon(-2.0).minPts(5)
+                        .distanceMeasure(new EuclideanDistance())
+                        .build());
     }
 
     @Test(expected = MathIllegalArgumentException.class)
     public void testNegativeMinPts() {
-        new DBSCANClusterer<DoublePoint>(2.0, -5);
+        SherlockClusterer<DoublePoint> clusterer = new SherlockClusterer<>();
+
+        final List<Cluster<DoublePoint>> clusters = clusterer.cluster(
+                Collections.emptyList(),
+                ClustererConfig.builder()
+                        .epsilon(2.0).minPts(-5)
+                        .distanceMeasure(new EuclideanDistance())
+                        .build());
     }
 
     @Test(expected = NullArgumentException.class)
     public void testNullDataset() {
-        DBSCANClusterer<DoublePoint> clusterer = new DBSCANClusterer(2.0, 5);
-        clusterer.cluster(null);
+        SherlockClusterer<DoublePoint> clusterer = new SherlockClusterer<>();
+        final List<Cluster<DoublePoint>> clusters = clusterer.cluster(null);
     }
 }

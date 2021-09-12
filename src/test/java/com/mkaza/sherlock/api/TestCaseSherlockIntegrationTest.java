@@ -1,8 +1,7 @@
 package com.mkaza.sherlock.api;
 
 import com.mkaza.sherlock.model.TestCaseCluster;
-import com.mkaza.sherlock.parser.LogParserFactory;
-import com.mkaza.sherlock.parser.LogParserType;
+import com.mkaza.sherlock.parser.MockParser;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -25,7 +24,7 @@ public class TestCaseSherlockIntegrationTest {
     @Test
     public void PositiveTestCaseClustering() {
         //setup
-        SherlockConfig config = SherlockConfig.builder(testLogsPath).parser(LogParserFactory.getParser(LogParserType.MOCK)).build();
+        SherlockConfig config = SherlockConfig.builder(testLogsPath).parser(new MockParser()).build();
 
         Sherlock<TestCaseCluster> sherlock = new TestCaseSherlock(config);
 

@@ -1,6 +1,4 @@
-package com.mkaza.sherlock.parser.impl;
-
-import com.mkaza.sherlock.parser.LogParser;
+package com.mkaza.sherlock.parser;
 
 import java.io.IOException;
 import java.nio.file.Files;

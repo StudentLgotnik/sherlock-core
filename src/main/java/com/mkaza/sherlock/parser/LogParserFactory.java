@@ -1,6 +1,5 @@
 package com.mkaza.sherlock.parser;
 
-import com.mkaza.sherlock.parser.impl.MockParser;
 import com.mkaza.sherlock.parser.impl.XmlLogParser;
 
 import java.util.HashMap;
@@ -13,7 +12,7 @@ public class LogParserFactory {
 
     static {
         map.put(LogParserType.XML.name(), XmlLogParser::new);
-        map.put(LogParserType.MOCK.name(), MockParser::new);
+        map.put(LogParserType.DEFAULT.name(), XmlLogParser::new);
     }
 
     public static LogParser getParser(LogParserType parserType){
