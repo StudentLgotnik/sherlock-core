@@ -2,7 +2,7 @@ package com.mkaza.sherlock.parser.impl;
 
 import com.google.common.base.Strings;
 import com.mkaza.sherlock.parser.LogParser;
-import com.mkaza.sherlock.parser.dto.SurfacePluginXmlDto;
+import com.mkaza.sherlock.parser.dto.SurefirePluginXmlDto;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -24,19 +24,19 @@ public class XmlLogParser implements LogParser {
 
         try(FileReader reader = new FileReader(logFilePath)) {
 
-            JAXBContext context = JAXBContext.newInstance(SurfacePluginXmlDto.class);
+            JAXBContext context = JAXBContext.newInstance(SurefirePluginXmlDto.class);
 
-            SurfacePluginXmlDto surfacePluginXmlDto = (SurfacePluginXmlDto) context
+            SurefirePluginXmlDto surefirePluginXmlDto = (SurefirePluginXmlDto) context
                     .createUnmarshaller()
                     .unmarshal(reader);
 
             logger.info("Successfully parsed logfile {}!", Paths.get(logFilePath).getFileName());
 
-            return surfacePluginXmlDto.getTestCases().stream()
+            return surefirePluginXmlDto.getTestCases().stream()
                     .filter(tc -> !Strings.isNullOrEmpty(tc.getStackTrace()))
                     .collect(Collectors.toMap(
                             tc -> tc.getClassname() + "." + tc.getName(),
-                            SurfacePluginXmlDto.TestCase::getStackTrace));
+                            SurefirePluginXmlDto.TestCase::getStackTrace));
         } catch (IOException e) {
             logger.error("Couldn't read the specified file!", e);
         } catch (JAXBException e) {

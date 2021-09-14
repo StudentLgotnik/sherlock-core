@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @XmlRootElement(name = "testsuite")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SurfacePluginXmlDto {
+public class SurefirePluginXmlDto {
 
     @XmlElement(name = "property")
     @XmlElementWrapper(name = "properties")
