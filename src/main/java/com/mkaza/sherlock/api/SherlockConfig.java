@@ -10,14 +10,23 @@ import lombok.NonNull;
 @Getter
 public class SherlockConfig {
 
+    /**
+     * Own parser realization which will be used for parsing logs under pathToLogs path.
+     */
     private LogParser parser;
 
+    /**
+     * Could be as path to single file or as path to directory with logs.
+     */
     @NonNull
-    private String logFilePath;
+    private String pathToLogs;
 
+    /**
+     * Clusterer configuration model to override suggested one.
+     */
     private ClustererConfig clustererConfig;
 
     public static SherlockConfigBuilder builder(String logFilePath) {
-        return hiddenBuilder().logFilePath(logFilePath);
+        return hiddenBuilder().pathToLogs(logFilePath);
     }
 }

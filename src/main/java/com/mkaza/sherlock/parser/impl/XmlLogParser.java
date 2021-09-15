@@ -3,21 +3,26 @@ package com.mkaza.sherlock.parser.impl;
 import com.google.common.base.Strings;
 import com.mkaza.sherlock.parser.LogParser;
 import com.mkaza.sherlock.parser.dto.SurefirePluginXmlDto;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.xml.sax.SAXParseException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class XmlLogParser implements LogParser {
 
-    private static final Logger logger = LogManager.getLogger(XmlLogParser.class);
+    private static final Logger logger = Logger.getLogger(XmlLogParser.class);
+
+    private static final String PROLOG_CONTENT_EX_MESSAGE = "Content is not allowed in prolog.";
 
     @Override
     public Map<String, String> parse(String logFilePath) {
@@ -30,7 +35,7 @@ public class XmlLogParser implements LogParser {
                     .createUnmarshaller()
                     .unmarshal(reader);
 
-            logger.info("Successfully parsed logfile {}!", Paths.get(logFilePath).getFileName());
+            logger.info(String.format("Successfully parsed logfile %s!", Paths.get(logFilePath).getFileName()));
 
             return surefirePluginXmlDto.getTestCases().stream()
                     .filter(tc -> !Strings.isNullOrEmpty(tc.getStackTrace()))
@@ -38,9 +43,14 @@ public class XmlLogParser implements LogParser {
                             tc -> tc.getClassname() + "." + tc.getName(),
                             SurefirePluginXmlDto.TestCase::getStackTrace));
         } catch (IOException e) {
-            logger.error("Couldn't read the specified file!", e);
+            logger.error(String.format("Couldn't read the file %s!", logFilePath), e);
         } catch (JAXBException e) {
-            logger.error("Couldn't parse the specified file!", e);
+            if (e.getLinkedException() instanceof SAXParseException
+                    && PROLOG_CONTENT_EX_MESSAGE.equals(e.getLinkedException().getMessage())) {
+                logger.warn(String.format("The file is most likely not xml %s!", logFilePath));
+            } else {
+                logger.error(String.format("Couldn't parse the file %s!", logFilePath), e);
+            }
         }
         return Collections.emptyMap();
     }
