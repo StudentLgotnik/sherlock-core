@@ -46,10 +46,13 @@ public class SurefirePluginXmlDto {
         private TestCaseFailure failure;
         @XmlElement(name = "error")
         private TestCaseError error;
+        @XmlElement(name = "system-out")
+        private TestCaseError systemOut;
 
         public String getStackTrace() {
             return failure != null ? failure.getValue() : Strings.EMPTY +
-                    (error != null ? error.getValue() : Strings.EMPTY);
+                    (error != null ? error.getValue() : Strings.EMPTY) +
+                    (systemOut != null ? systemOut.getValue() : Strings.EMPTY);
         }
 
     }
@@ -75,6 +78,16 @@ public class SurefirePluginXmlDto {
         private String type;
         @XmlAttribute
         private String message;
+        @XmlValue
+        private String value;
+
+    }
+
+    @Data
+    @XmlRootElement(name = "system-out")
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class TestCaseSystemOut {
+
         @XmlValue
         private String value;
 
