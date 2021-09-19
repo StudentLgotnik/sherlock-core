@@ -27,6 +27,7 @@ public class TestCaseSherlockIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void PositiveTestCaseClustering() {
         //setup
         SherlockConfig config = SherlockConfig.builder(testLogsPath).parser(new MockParser()).build();
