@@ -4,6 +4,7 @@ import com.mkaza.sherlock.model.TestCaseCluster;
 import com.mkaza.sherlock.parser.MockParser;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.URISyntaxException;
@@ -42,6 +43,7 @@ public class TestCaseSherlockIntegrationTest {
     }
 
     @Test
+    @Ignore
     public void concurrencyTest() throws InterruptedException, ExecutionException {
         ExecutorService executor
                 = Executors.newFixedThreadPool(2);
