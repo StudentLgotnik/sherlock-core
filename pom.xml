@@ -100,7 +100,32 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <plugin>
+                <groupId>org.jfrog.buildinfo</groupId>
+                <artifactId>artifactory-maven-plugin</artifactId>
+                <version>3.2.1</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>build-info</id>
+                        <goals>
+                            <goal>publish</goal>
+                        </goals>
+                        <configuration>
+                            <deployProperties>
+                                <gradle>awesome</gradle>
+                            </deployProperties>
+                            <publisher>
+                                <contextUrl>https://mkaza.jfrog.io/artifactory/</contextUrl>
+                                <username>{{ARTIFACTORY_USER}}</username>
+                                <password>{{ARTIFACTORY_PASSWORD}}</password>
+                                <repoKey>sherlock/</repoKey>
+                                <snapshotRepoKey>sherlock/</snapshotRepoKey>
+                            </publisher>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
