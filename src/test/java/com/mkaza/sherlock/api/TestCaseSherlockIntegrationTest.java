@@ -28,6 +28,7 @@ public class TestCaseSherlockIntegrationTest {
 
     @Test
     @Ignore
+    //TODO Fails in circleci
     public void PositiveTestCaseClustering() {
         //setup
         SherlockConfig config = SherlockConfig.builder(testLogsPath).parser(new MockParser()).build();
@@ -45,6 +46,7 @@ public class TestCaseSherlockIntegrationTest {
 
     @Test
     @Ignore
+    //TODO Fails in circleci
     public void concurrencyTest() throws InterruptedException, ExecutionException {
         ExecutorService executor
                 = Executors.newFixedThreadPool(2);
