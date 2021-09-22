@@ -5,11 +5,17 @@ import com.mkaza.sherlock.api.SherlockConfig;
 import com.mkaza.sherlock.api.TestCaseSherlock;
 import com.mkaza.sherlock.clusterer.ClustererConfig;
 import com.mkaza.sherlock.model.TestCaseCluster;
+import com.mkaza.sherlock.parser.provider.LogsProvider;
+import com.mkaza.sherlock.parser.provider.impl.DirLogsProvider;
+import com.mkaza.sherlock.parser.provider.impl.FileLogsProvider;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class SherlockCli {
@@ -34,12 +40,22 @@ public class SherlockCli {
                 logger.info("Path to logs: " + path);
             }
 
+            if (Objects.isNull(path) || !Files.exists(Paths.get(path))) {
+                throw new IllegalArgumentException(String.format("Path to logs is invalid: %s", path));
+            }
+
+            LogsProvider logsProvider = Files.isRegularFile(Paths.get(path))
+                    ? new FileLogsProvider(path)
+                    : new DirLogsProvider(path);
+
             SherlockConfig sherlockConfig;
             if (cmd.hasOption(EPSILON_OPT) || cmd.hasOption(MIN_PTS_OPT)) {
                 String epsilon = cmd.getOptionValue(EPSILON_OPT);
                 String minPts = cmd.getOptionValue("mp");
+
                 logger.info("Optional parameters: epsilon: " + epsilon + "min points: " + minPts);
-                sherlockConfig = SherlockConfig.builder(path)
+
+                sherlockConfig = SherlockConfig.builder(logsProvider)
                         .clustererConfig(
                                 ClustererConfig.builder()
                                         .epsilon(Double.valueOf(epsilon))
@@ -47,7 +63,7 @@ public class SherlockCli {
                                         .build())
                         .build();
             } else {
-                sherlockConfig = SherlockConfig.builder(path).build();
+                sherlockConfig = SherlockConfig.builder(logsProvider).build();
             }
 
             Sherlock<TestCaseCluster> sherlock = new TestCaseSherlock(sherlockConfig);

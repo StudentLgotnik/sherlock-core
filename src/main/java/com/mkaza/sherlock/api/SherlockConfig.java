@@ -2,6 +2,7 @@ package com.mkaza.sherlock.api;
 
 import com.mkaza.sherlock.clusterer.ClustererConfig;
 import com.mkaza.sherlock.parser.LogParser;
+import com.mkaza.sherlock.parser.provider.LogsProvider;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -19,14 +20,14 @@ public class SherlockConfig {
      * Could be as path to single file or as path to directory with logs.
      */
     @NonNull
-    private String pathToLogs;
+    private LogsProvider logsProvider;
 
     /**
      * Clusterer configuration model to override suggested one.
      */
     private ClustererConfig clustererConfig;
 
-    public static SherlockConfigBuilder builder(String logFilePath) {
-        return hiddenBuilder().pathToLogs(logFilePath);
+    public static SherlockConfigBuilder builder(LogsProvider logsProvider) {
+        return hiddenBuilder().logsProvider(logsProvider);
     }
 }

@@ -2,6 +2,7 @@ package com.mkaza.sherlock.api;
 
 import com.mkaza.sherlock.model.TestCaseCluster;
 import com.mkaza.sherlock.parser.MockParser;
+import com.mkaza.sherlock.parser.provider.impl.FileLogsProvider;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -31,7 +32,7 @@ public class TestCaseSherlockIntegrationTest {
     //TODO Fails in circleci
     public void PositiveTestCaseClustering() {
         //setup
-        SherlockConfig config = SherlockConfig.builder(testLogsPath).parser(new MockParser()).build();
+        SherlockConfig config = SherlockConfig.builder(new FileLogsProvider(testLogsPath)).parser(new MockParser()).build();
 
         Sherlock<TestCaseCluster> sherlock = new TestCaseSherlock(config);
 
@@ -51,11 +52,11 @@ public class TestCaseSherlockIntegrationTest {
         ExecutorService executor
                 = Executors.newFixedThreadPool(2);
 
-        SherlockConfig config = SherlockConfig.builder(testLogsPath).parser(new MockParser()).build();
+        SherlockConfig config = SherlockConfig.builder(new FileLogsProvider(testLogsPath)).parser(new MockParser()).build();
 
         Sherlock<TestCaseCluster> sherlock = new TestCaseSherlock(config);
 
-        SherlockConfig config2 = SherlockConfig.builder("D:\\Labs\\Masters_diploma\\project\\SherlockLogsProvider\\target\\surefire-reports\\TEST-com.mkaza.sherlock.api.UserApiTest.xml").build();
+        SherlockConfig config2 = SherlockConfig.builder(new FileLogsProvider("")).build();
 
         Sherlock<TestCaseCluster> sherlock2 = new TestCaseSherlock(config2);
 

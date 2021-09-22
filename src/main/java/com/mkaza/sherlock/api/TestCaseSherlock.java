@@ -8,6 +8,7 @@ import com.mkaza.sherlock.model.TestCaseCluster;
 import com.mkaza.sherlock.parser.LogParser;
 import com.mkaza.sherlock.parser.LogParserFactory;
 import com.mkaza.sherlock.parser.LogParserType;
+import com.mkaza.sherlock.parser.provider.LogsProvider;
 import org.apache.commons.math3.ml.clustering.Cluster;
 import org.apache.log4j.Logger;
 import org.apache.spark.sql.Dataset;
@@ -18,16 +19,10 @@ import org.apache.spark.sql.types.Metadata;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class TestCaseSherlock implements Sherlock<TestCaseCluster> {
 
@@ -44,17 +39,13 @@ public class TestCaseSherlock implements Sherlock<TestCaseCluster> {
 
         LogParser parser = Objects.nonNull(sherlockConfig.getParser())
                 ? sherlockConfig.getParser()
-                : LogParserFactory.getParser(LogParserType.XML);
+                : LogParserFactory.getParser(LogParserType.DEFAULT);
 
-        String pathToLogs = sherlockConfig.getPathToLogs();
+        LogsProvider logsProvider = sherlockConfig.getLogsProvider();
 
-        if (!Files.exists(Paths.get(pathToLogs))) {
-            throw new IllegalArgumentException(String.format("Path to logs is invalid: %s", pathToLogs));
-        }
+        Map<String, String> logs = parser.parse(logsProvider);
 
-        Map<String, String> logs = Files.isRegularFile(Paths.get(pathToLogs))
-                ? parser.parse(pathToLogs)
-                : parseDir(pathToLogs, parser);
+        logger.info(String.format("%d test cases were parsed.", logs.size()));
 
         List<Row> rows = logs.entrySet().stream()
                 .map(e -> RowFactory.create(e.getKey(), e.getValue()))
@@ -69,27 +60,21 @@ public class TestCaseSherlock implements Sherlock<TestCaseCluster> {
 
         Dataset<Row> dataset = tfidfEstimator.estimate(rows);
 
+        List<Row> estimatedRows = dataset.collectAsList();
+
+        logger.info(String.format("%d test cases were estimated.", estimatedRows.size()));
+
         //Cluster dataset
         SherlockClusterer<ClusterableTestCase> clusterer = new SherlockClusterer<>();
 
-        List<ClusterableTestCase> clusterableDataSet = dataset.collectAsList().stream().map(ClusterableTestCase::new).collect(Collectors.toList());
+        List<ClusterableTestCase> clusterableDataSet = estimatedRows.stream().map(ClusterableTestCase::new).collect(Collectors.toList());
 
         List<Cluster<ClusterableTestCase>> clusters = Objects.nonNull(sherlockConfig.getClustererConfig())
                 ? clusterer.cluster(clusterableDataSet, sherlockConfig.getClustererConfig())
                 : clusterer.cluster(clusterableDataSet);
 
-        return clusters.stream().map(TestCaseCluster::new).collect(Collectors.toList());
-    }
+        logger.info(String.format("%d clusters were found.", clusters.size()));
 
-    public Map<String, String> parseDir(String logDirPath, LogParser parser) {
-        try (Stream<Path> paths = Files.walk(Paths.get(logDirPath))) {
-            return paths
-                    .filter(Files::isRegularFile)
-                    .flatMap(p -> parser.parse(p.toAbsolutePath().toString()).entrySet().stream())
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        } catch (IOException e) {
-            logger.error(String.format("Couldn't read from the directory %s!", logDirPath), e);
-        }
-        return Collections.emptyMap();
+        return clusters.stream().map(TestCaseCluster::new).collect(Collectors.toList());
     }
 }

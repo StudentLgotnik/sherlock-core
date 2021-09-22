@@ -1,13 +1,15 @@
 package com.mkaza.sherlock.parser;
 
+import com.mkaza.sherlock.parser.provider.LogsProvider;
+
 import java.util.Map;
 
 public interface LogParser {
 
     /**
      * Parse logs from provided file
-     * @param logFilePath path to file with logs
+     * @param logsProvider path to file with logs
      * @return batch of test case and related errors from logs
      */
-    Map<String, String> parse(String logFilePath);
+    Map<String, String> parse(LogsProvider logsProvider);
 }

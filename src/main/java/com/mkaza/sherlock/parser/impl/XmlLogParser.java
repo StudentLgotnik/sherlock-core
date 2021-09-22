@@ -3,20 +3,17 @@ package com.mkaza.sherlock.parser.impl;
 import com.google.common.base.Strings;
 import com.mkaza.sherlock.parser.LogParser;
 import com.mkaza.sherlock.parser.dto.SurefirePluginXmlDto;
+import com.mkaza.sherlock.parser.provider.LogsProvider;
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXParseException;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.Map;
+import javax.xml.bind.Unmarshaller;
+import java.io.*;
+import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class XmlLogParser implements LogParser {
 
@@ -25,33 +22,43 @@ public class XmlLogParser implements LogParser {
     private static final String PROLOG_CONTENT_EX_MESSAGE = "Content is not allowed in prolog.";
 
     @Override
-    public Map<String, String> parse(String logFilePath) {
-
-        try(FileReader reader = new FileReader(logFilePath)) {
+    public Map<String, String> parse(LogsProvider logsProvider) {
+        try {
 
             JAXBContext context = JAXBContext.newInstance(SurefirePluginXmlDto.class);
 
-            SurefirePluginXmlDto surefirePluginXmlDto = (SurefirePluginXmlDto) context
-                    .createUnmarshaller()
-                    .unmarshal(reader);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
 
-            logger.info(String.format("Successfully parsed logfile %s!", Paths.get(logFilePath).getFileName()));
+            List<SurefirePluginXmlDto> xmlLogs = new ArrayList<>();
 
-            return surefirePluginXmlDto.getTestCases().stream()
+            for (Supplier<InputStream> logSupplier: logsProvider.getLogs()){
+                unmarshal(unmarshaller, logSupplier).ifPresent(xmlLogs::add);
+            }
+
+            return xmlLogs.stream()
+                    .flatMap(x -> x.getTestCases().stream())
                     .filter(tc -> !Strings.isNullOrEmpty(tc.getStackTrace()))
                     .collect(Collectors.toMap(
                             tc -> tc.getClassname() + "." + tc.getName(),
                             SurefirePluginXmlDto.TestCase::getStackTrace));
-        } catch (IOException e) {
-            logger.error(String.format("Couldn't read the file %s!", logFilePath), e);
+
+        } catch (JAXBException e) {
+            logger.error("Couldn't create unmarshaller!", e);
+        }
+        return Collections.emptyMap();
+    }
+
+    private Optional<SurefirePluginXmlDto> unmarshal(Unmarshaller unmarshaller, Supplier<InputStream> logSupplier) {
+        try {
+            return Optional.of((SurefirePluginXmlDto) unmarshaller.unmarshal(logSupplier.get()));
         } catch (JAXBException e) {
             if (e.getLinkedException() instanceof SAXParseException
                     && PROLOG_CONTENT_EX_MESSAGE.equals(e.getLinkedException().getMessage())) {
-                logger.warn(String.format("The file is most likely not xml %s!", logFilePath));
+                logger.warn("The log is most likely not xml!");
             } else {
-                logger.error(String.format("Couldn't parse the file %s!", logFilePath), e);
+                logger.error("Couldn't parse the logs!", e);
             }
         }
-        return Collections.emptyMap();
+        return Optional.empty();
     }
 }
