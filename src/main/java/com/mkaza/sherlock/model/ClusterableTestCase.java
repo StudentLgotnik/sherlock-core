@@ -4,6 +4,8 @@ import org.apache.commons.math3.ml.clustering.Clusterable;
 import org.apache.spark.ml.linalg.SparseVector;
 import org.apache.spark.sql.Row;
 
+import java.util.Objects;
+
 public class ClusterableTestCase implements TestCase, Clusterable {
 
     private final Row row;
@@ -30,5 +32,18 @@ public class ClusterableTestCase implements TestCase, Clusterable {
 
     public <T> T getTestErrors() {
         return row.getAs(RowStruct.TEST_ERRORS.field());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ClusterableTestCase that = (ClusterableTestCase) o;
+        return Objects.equals(row, that.row);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(row);
     }
 }

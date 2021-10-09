@@ -1,6 +1,7 @@
 package com.mkaza.sherlock.clusterer;
 
 import lombok.Builder;
+import lombok.Getter;
 import org.apache.commons.math3.ml.distance.DistanceMeasure;
 
 import java.util.Optional;
@@ -13,6 +14,9 @@ public class ClustererConfig {
     private Integer minPts;
 
     private DistanceMeasure distanceMeasure;
+
+    @Getter
+    private boolean excludeNoiseNodes;
 
     public Optional<Double> getEpsilon() {
         return Optional.ofNullable(epsilon);

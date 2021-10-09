@@ -10,6 +10,7 @@ import com.mkaza.sherlock.parser.provider.impl.DirLogsProvider;
 import com.mkaza.sherlock.parser.provider.impl.FileLogsProvider;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.log4j.Logger;
 
 import java.nio.file.Files;
@@ -25,6 +26,7 @@ public class SherlockCli {
     private static final String LOGS_PATH_OPT = "lp";
     private static final String EPSILON_OPT = "e";
     private static final String MIN_PTS_OPT = "mp";
+    private static final String EXCLUDE_NOISE_NODES = "n";
 
     public static void main(String[] args) {
         Options options = getOptions();
@@ -49,17 +51,23 @@ public class SherlockCli {
                     : new DirLogsProvider(path);
 
             SherlockConfig sherlockConfig;
-            if (cmd.hasOption(EPSILON_OPT) || cmd.hasOption(MIN_PTS_OPT)) {
-                String epsilon = cmd.getOptionValue(EPSILON_OPT);
-                String minPts = cmd.getOptionValue("mp");
+            if (cmd.hasOption(EPSILON_OPT) || cmd.hasOption(MIN_PTS_OPT) || cmd.hasOption(EXCLUDE_NOISE_NODES)) {
+                Double epsilon = cmd.hasOption(EPSILON_OPT) && NumberUtils.isCreatable(cmd.getOptionValue(EPSILON_OPT))
+                        ? Double.valueOf(cmd.getOptionValue(EPSILON_OPT))
+                        : null;
+                Integer minPts = cmd.hasOption(MIN_PTS_OPT) && NumberUtils.isCreatable(cmd.getOptionValue(MIN_PTS_OPT))
+                        ? Integer.valueOf(cmd.getOptionValue(MIN_PTS_OPT))
+                        : null;
+                boolean noise = cmd.hasOption(EXCLUDE_NOISE_NODES);
 
                 logger.info("Optional parameters: epsilon: " + epsilon + "min points: " + minPts);
 
                 sherlockConfig = SherlockConfig.builder(logsProvider)
                         .clustererConfig(
                                 ClustererConfig.builder()
-                                        .epsilon(Double.valueOf(epsilon))
-                                        .minPts(Integer.valueOf(minPts))
+                                        .epsilon(epsilon)
+                                        .minPts(minPts)
+                                        .excludeNoiseNodes(noise)
                                         .build())
                         .build();
             } else {
@@ -101,6 +109,12 @@ public class SherlockCli {
                 .longOpt("minPts")
                 .hasArg(true)
                 .desc("The number as integer of samples in a neighborhood for a point to be considered as a core point")
+                .required(false)
+                .build());
+        options.addOption(Option.builder(EXCLUDE_NOISE_NODES)
+                .longOpt("noise")
+                .hasArg(false)
+                .desc("Determines whether to exclude noise nodes, if present - clusters with single node will be excluded")
                 .required(false)
                 .build());
 

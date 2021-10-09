@@ -90,6 +90,7 @@ public class SherlockClustererTest {
                 ClustererConfig.builder()
                         .epsilon(2.0).minPts(5)
                         .distanceMeasure(new EuclideanDistance())
+                        .excludeNoiseNodes(true)
                         .build());
 
         final List<DoublePoint> clusterOne =
@@ -149,6 +150,7 @@ public class SherlockClustererTest {
                 ClustererConfig.builder()
                         .epsilon(3.0).minPts(3)
                         .distanceMeasure(new EuclideanDistance())
+                        .excludeNoiseNodes(true)
                         .build());
 
         Assert.assertEquals(1, clusters.size());
@@ -167,6 +169,7 @@ public class SherlockClustererTest {
                 ClustererConfig.builder()
                         .epsilon(-2.0).minPts(5)
                         .distanceMeasure(new EuclideanDistance())
+                        .excludeNoiseNodes(true)
                         .build());
     }
 
@@ -179,6 +182,7 @@ public class SherlockClustererTest {
                 ClustererConfig.builder()
                         .epsilon(2.0).minPts(-5)
                         .distanceMeasure(new EuclideanDistance())
+                        .excludeNoiseNodes(true)
                         .build());
     }
 
