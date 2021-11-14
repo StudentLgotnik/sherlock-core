@@ -85,6 +85,8 @@ public class SherlockClustererTest {
 
         SherlockClusterer<DoublePoint> clusterer = new SherlockClusterer<>();
 
+        final List<Cluster<DoublePoint>> clusterss = clusterer.cluster(Arrays.asList(points));
+
         final List<Cluster<DoublePoint>> clusters = clusterer.cluster(
                 Arrays.asList(points),
                 ClustererConfig.builder()

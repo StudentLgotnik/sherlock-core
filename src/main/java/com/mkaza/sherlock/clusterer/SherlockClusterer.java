@@ -26,6 +26,7 @@ public class SherlockClusterer<T extends Clusterable> {
 
         int minPts = config.getMinPts().orElseGet(() -> DbscanUtil.calcMinPts(rescaledDataRows.size()));
         double epsilon = config.getEpsilon().orElseGet(() -> DbscanUtil.calcAverageEpsilon(rescaledDataRows, minPts));
+        double epsilon2 = config.getEpsilon().orElseGet(() -> DbscanUtil.calcEpsilon(rescaledDataRows, minPts));
         DistanceMeasure distanceMeasure = config.getDistanceMeasure().orElseGet(EuclideanDistance::new);
 
         final DBSCANClusterer<T> transformer = new DBSCANClusterer<>(epsilon, minPts, distanceMeasure);

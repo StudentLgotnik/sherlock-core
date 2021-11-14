@@ -3,7 +3,14 @@ package com.mkaza.sherlock.util;
 import org.apache.commons.math3.ml.clustering.Clusterable;
 import org.apache.commons.math3.ml.distance.DistanceMeasure;
 import org.apache.commons.math3.ml.distance.EuclideanDistance;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,6 +55,8 @@ public class DbscanUtil {
         }
 
         Arrays.sort(averageDistances);
+
+        writeToExcel("AvarageEpsilon", averageDistances);
 
         //Find the elbow of function
         double maxDif = 0;
@@ -96,6 +105,8 @@ public class DbscanUtil {
 
         Collections.sort(averageDistances);
 
+        writeToExcel("NormalEpsilon", averageDistances.stream().mapToDouble(Double::doubleValue).toArray());
+
         //Find the elbow of function
         double maxDif = 0;
         int potentialEpsilonIndex = 0;
@@ -108,6 +119,59 @@ public class DbscanUtil {
         }
 
         return averageDistances.get(potentialEpsilonIndex);
+    }
+
+    private static void writeToExcel(String fileName, double[] data) {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Java Books");
+
+//        Object[][] bookData = {
+//                {"Head First Java", "Kathy Serria", 79},
+//                {"Effective Java", "Joshua Bloch", 36},
+//                {"Clean Code", "Robert martin", 42},
+//                {"Thinking in Java", "Bruce Eckel", 35},
+//        };
+
+//        int rowCount = 0;
+//
+//        for (Object[] aBook : bookData) {
+//            Row row = sheet.createRow(++rowCount);
+//
+//            int columnCount = 0;
+//
+//            for (Object field : aBook) {
+//                Cell cell = row.createCell(++columnCount);
+//                if (field instanceof String) {
+//                    cell.setCellValue((String) field);
+//                } else if (field instanceof Integer) {
+//                    cell.setCellValue((Integer) field);
+//                }
+//            }
+//
+//        }
+
+        Row headers = sheet.createRow(1);
+        Cell a = headers.createCell(1);
+        a.setCellValue("A");
+        Cell b = headers.createCell(2);
+        b.setCellValue("B");
+
+        for (int i = 0; i < data.length; i++) {
+
+            Row row = sheet.createRow(2 + i);
+
+            Cell cell1 = row.createCell(1);
+            cell1.setCellValue(data[i]);
+            Cell cell2 = row.createCell(2);
+            cell2.setCellValue(i);
+
+        }
+
+        try (FileOutputStream outputStream = new FileOutputStream(fileName)) {
+            workbook.write(outputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
