@@ -19,7 +19,7 @@ And the opposite problem can arise when the results are reviewed by one engineer
 and he believes that all the tests failed for one reason, and the problems are actually two. 
 And it would be good to have software that could classify the actual number of errors, and indicate to which test which error refers.
 
-###Targeted users
+### Targeted users
 Large software products that have automated integrated testing with a significant number of tests. 
 Directly to teams that develop and maintain automated integration testing or to teams that do not have a separate team but want to have an error classifier.
 
