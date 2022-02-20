@@ -1,6 +1,6 @@
 package com.mkaza.sherlock.api;
 
-import com.mkaza.sherlock.clusterer.ClustererConfig;
+import com.mkaza.sherlock.clusterer.SherlockClustererConfig;
 import com.mkaza.sherlock.parser.LogParser;
 import com.mkaza.sherlock.parser.provider.LogsProvider;
 import lombok.Builder;
@@ -25,7 +25,7 @@ public class SherlockConfig {
     /**
      * Clusterer configuration model to override suggested one.
      */
-    private ClustererConfig clustererConfig;
+    private SherlockClustererConfig clustererConfig;
 
     public static SherlockConfigBuilder builder(LogsProvider logsProvider) {
         return hiddenBuilder().logsProvider(logsProvider);

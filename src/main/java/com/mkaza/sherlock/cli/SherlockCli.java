@@ -3,7 +3,7 @@ package com.mkaza.sherlock.cli;
 import com.mkaza.sherlock.api.Sherlock;
 import com.mkaza.sherlock.api.SherlockConfig;
 import com.mkaza.sherlock.api.TestCaseSherlock;
-import com.mkaza.sherlock.clusterer.ClustererConfig;
+import com.mkaza.sherlock.clusterer.impl.DBSCANConfig;
 import com.mkaza.sherlock.model.TestCaseCluster;
 import com.mkaza.sherlock.parser.provider.LogsProvider;
 import com.mkaza.sherlock.parser.provider.impl.DirLogsProvider;
@@ -64,7 +64,7 @@ public class SherlockCli {
 
                 sherlockConfig = SherlockConfig.builder(logsProvider)
                         .clustererConfig(
-                                ClustererConfig.builder()
+                                DBSCANConfig.builder()
                                         .epsilon(epsilon)
                                         .minPts(minPts)
                                         .excludeNoiseNodes(noise)
