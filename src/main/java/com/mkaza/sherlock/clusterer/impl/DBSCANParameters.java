@@ -1,5 +1,6 @@
-package com.mkaza.sherlock.clusterer;
+package com.mkaza.sherlock.clusterer.impl;
 
+import com.mkaza.sherlock.clusterer.InitialParameters;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.commons.math3.ml.distance.DistanceMeasure;
@@ -7,7 +8,7 @@ import org.apache.commons.math3.ml.distance.DistanceMeasure;
 import java.util.Optional;
 
 @Builder
-public class ClustererConfig {
+public class DBSCANParameters implements InitialParameters {
 
     private Double epsilon;
 
@@ -29,4 +30,5 @@ public class ClustererConfig {
     public Optional<DistanceMeasure> getDistanceMeasure() {
         return Optional.ofNullable(distanceMeasure);
     }
+
 }

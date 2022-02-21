@@ -1,6 +1,8 @@
 package com.mkaza.sherlock.api;
 
 import com.mkaza.sherlock.clusterer.SherlockClusterer;
+import com.mkaza.sherlock.clusterer.SherlockClustererFactory;
+import com.mkaza.sherlock.estimator.Estimator;
 import com.mkaza.sherlock.estimator.TfidfEstimator;
 import com.mkaza.sherlock.model.ClusterableTestCase;
 import com.mkaza.sherlock.model.RowStruct;
@@ -56,22 +58,21 @@ public class TestCaseSherlock implements Sherlock<TestCaseCluster> {
                 new StructField(RowStruct.TEST_ERRORS.field(), DataTypes.StringType, false, Metadata.empty())
         });
 
-        TfidfEstimator tfidfEstimator = TfidfEstimator.createForSchema(schema);
+        Estimator estimator = TfidfEstimator.createForSchema(schema);
 
-        Dataset<Row> dataset = tfidfEstimator.estimate(rows);
+        Dataset<Row> dataset = estimator.estimate(rows);
 
         List<Row> estimatedRows = dataset.collectAsList();
 
         logger.info(String.format("%d test cases were estimated.", estimatedRows.size()));
 
         //Cluster dataset
-        SherlockClusterer<ClusterableTestCase> clusterer = new SherlockClusterer<>();
+        SherlockClusterer<ClusterableTestCase> clusterer = SherlockClustererFactory
+                .createClusterer(sherlockConfig.getClusteringAlgorithm());
 
         List<ClusterableTestCase> clusterableDataSet = estimatedRows.stream().map(ClusterableTestCase::new).collect(Collectors.toList());
 
-        List<Cluster<ClusterableTestCase>> clusters = Objects.nonNull(sherlockConfig.getClustererConfig())
-                ? clusterer.cluster(clusterableDataSet, sherlockConfig.getClustererConfig())
-                : clusterer.cluster(clusterableDataSet);
+        List<Cluster<ClusterableTestCase>> clusters = clusterer.cluster(clusterableDataSet);
 
         logger.info(String.format("%d clusters were found.", clusters.size()));
 

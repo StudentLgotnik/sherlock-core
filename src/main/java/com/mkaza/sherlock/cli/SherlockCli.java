@@ -3,7 +3,8 @@ package com.mkaza.sherlock.cli;
 import com.mkaza.sherlock.api.Sherlock;
 import com.mkaza.sherlock.api.SherlockConfig;
 import com.mkaza.sherlock.api.TestCaseSherlock;
-import com.mkaza.sherlock.clusterer.ClustererConfig;
+import com.mkaza.sherlock.clusterer.impl.DBSCANAlgorithm;
+import com.mkaza.sherlock.clusterer.impl.DBSCANParameters;
 import com.mkaza.sherlock.model.TestCaseCluster;
 import com.mkaza.sherlock.parser.provider.LogsProvider;
 import com.mkaza.sherlock.parser.provider.impl.DirLogsProvider;
@@ -62,16 +63,17 @@ public class SherlockCli {
 
                 logger.info("Optional parameters: epsilon: " + epsilon + "min points: " + minPts);
 
-                sherlockConfig = SherlockConfig.builder(logsProvider)
-                        .clustererConfig(
-                                ClustererConfig.builder()
+                sherlockConfig = SherlockConfig
+                        .builder(
+                                logsProvider,
+                                new DBSCANAlgorithm(DBSCANParameters.builder()
                                         .epsilon(epsilon)
                                         .minPts(minPts)
                                         .excludeNoiseNodes(noise)
-                                        .build())
+                                        .build()))
                         .build();
             } else {
-                sherlockConfig = SherlockConfig.builder(logsProvider).build();
+                sherlockConfig = SherlockConfig.builder(logsProvider, new DBSCANAlgorithm()).build();
             }
 
             Sherlock<TestCaseCluster> sherlock = new TestCaseSherlock(sherlockConfig);
