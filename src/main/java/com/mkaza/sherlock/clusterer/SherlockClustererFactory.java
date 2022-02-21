@@ -1,25 +1,24 @@
 package com.mkaza.sherlock.clusterer;
 
 import com.mkaza.sherlock.clusterer.impl.DBSCANSherlockClusterer;
+import com.mkaza.sherlock.clusterer.impl.DBSCANParameters;
 import com.mkaza.sherlock.model.ClusterableTestCase;
-
-import java.util.Objects;
 
 public class SherlockClustererFactory {
 
-    public static SherlockClusterer<ClusterableTestCase> createClusterer(SherlockClustererConfig config) {
-        if (Objects.isNull(config)) {
-            throw new IllegalArgumentException("");
-        }
-        switch (config.getClusteringAlgorithm()) {
+    public static SherlockClusterer<ClusterableTestCase> createClusterer(ClusteringAlgorithm clusteringAlgorithm) {
+
+        switch (clusteringAlgorithm.getAlgorithm()) {
             case DBSCAN:
-                return Objects.nonNull(config.getConfig())
-                        ? new DBSCANSherlockClusterer<>(config.getConfig())
-                        : new DBSCANSherlockClusterer<>();
+                return new DBSCANSherlockClusterer<>(
+                        ((ParametrizedClusteringAlgorithm<?>) clusteringAlgorithm).getParameters()
+                );
             default:
-                return Objects.nonNull(config.getConfig())
-                        ? new DBSCANSherlockClusterer<>(config.getConfig())
-                        : new DBSCANSherlockClusterer<>();
+                return defaultClusterer();
         }
+    }
+
+    private static SherlockClusterer<ClusterableTestCase> defaultClusterer() {
+        return new DBSCANSherlockClusterer<>(DBSCANParameters.builder().build());
     }
 }

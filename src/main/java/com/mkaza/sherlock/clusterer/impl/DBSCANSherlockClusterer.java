@@ -11,14 +11,10 @@ import org.apache.commons.math3.ml.distance.EuclideanDistance;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DBSCANSherlockClusterer<T extends Clusterable> extends ConfigurableSherlockClusterer<T, DBSCANConfig> {
+public class DBSCANSherlockClusterer<T extends Clusterable> extends ConfigurableSherlockClusterer<T, DBSCANParameters> {
 
-    public DBSCANSherlockClusterer(DBSCANConfig config) {
+    public DBSCANSherlockClusterer(DBSCANParameters config) {
         super(config);
-    }
-
-    public DBSCANSherlockClusterer() {
-        super(DBSCANConfig.builder().build());
     }
 
     @Override
@@ -27,6 +23,8 @@ public class DBSCANSherlockClusterer<T extends Clusterable> extends Configurable
         if (rescaledDataRows == null) {
             throw new NullArgumentException();
         }
+
+        DBSCANParameters config = getConfig();
 
         int minPts = config.getMinPts().orElseGet(() -> DbscanUtil.calcMinPts(rescaledDataRows.size()));
         double epsilon = config.getEpsilon().orElseGet(() -> DbscanUtil.calcAverageEpsilon(rescaledDataRows, minPts));

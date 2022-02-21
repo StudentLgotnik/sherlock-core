@@ -1,7 +1,6 @@
 package com.mkaza.sherlock.clusterer.impl;
 
-import com.mkaza.sherlock.clusterer.SherlockClustererConfig;
-import com.mkaza.sherlock.clusterer.SherlockClusteringAlgorithm;
+import com.mkaza.sherlock.clusterer.InitialParameters;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.commons.math3.ml.distance.DistanceMeasure;
@@ -9,7 +8,7 @@ import org.apache.commons.math3.ml.distance.DistanceMeasure;
 import java.util.Optional;
 
 @Builder
-public class DBSCANConfig implements SherlockClustererConfig {
+public class DBSCANParameters implements InitialParameters {
 
     private Double epsilon;
 
@@ -32,13 +31,4 @@ public class DBSCANConfig implements SherlockClustererConfig {
         return Optional.ofNullable(distanceMeasure);
     }
 
-    @Override
-    public SherlockClusteringAlgorithm getClusteringAlgorithm() {
-        return SherlockClusteringAlgorithm.DBSCAN;
-    }
-
-    @Override
-    public <E> E getConfig() {
-        return (E) this;
-    }
 }

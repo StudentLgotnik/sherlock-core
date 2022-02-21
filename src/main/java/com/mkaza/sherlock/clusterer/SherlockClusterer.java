@@ -7,6 +7,11 @@ import java.util.List;
 
 public interface SherlockClusterer<T extends Clusterable> {
 
+    /**
+     *
+     * @param rescaledDataRows
+     * @return
+     */
     List<Cluster<T>> cluster(List<T> rescaledDataRows);
 
 }

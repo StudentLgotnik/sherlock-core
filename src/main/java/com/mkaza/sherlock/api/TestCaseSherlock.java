@@ -68,7 +68,7 @@ public class TestCaseSherlock implements Sherlock<TestCaseCluster> {
 
         //Cluster dataset
         SherlockClusterer<ClusterableTestCase> clusterer = SherlockClustererFactory
-                .createClusterer(sherlockConfig.getClustererConfig());
+                .createClusterer(sherlockConfig.getClusteringAlgorithm());
 
         List<ClusterableTestCase> clusterableDataSet = estimatedRows.stream().map(ClusterableTestCase::new).collect(Collectors.toList());
 

@@ -1,5 +1,6 @@
 package com.mkaza.sherlock.api;
 
+import com.mkaza.sherlock.clusterer.impl.DBSCANAlgorithm;
 import com.mkaza.sherlock.model.TestCaseCluster;
 import com.mkaza.sherlock.parser.MockParser;
 import com.mkaza.sherlock.parser.provider.impl.DirLogsProvider;
@@ -33,7 +34,7 @@ public class TestCaseSherlockIntegrationTest {
     @Ignore
     public void PositiveTestCaseClustering() {
         //setup
-        SherlockConfig config = SherlockConfig.builder(new DirLogsProvider(testLogsPath)).build();
+        SherlockConfig config = SherlockConfig.builder(new DirLogsProvider(testLogsPath), new DBSCANAlgorithm()).build();
 
         Sherlock<TestCaseCluster> sherlock = new TestCaseSherlock(config);
 
@@ -57,11 +58,11 @@ public class TestCaseSherlockIntegrationTest {
         var relPath = Paths.get("src", "test", "resources", "SampleTestData.txt");
         var sampleData = relPath.toFile().getAbsolutePath();
 
-        SherlockConfig config = SherlockConfig.builder(new FileLogsProvider(sampleData)).parser(new MockParser()).build();
+        SherlockConfig config = SherlockConfig.builder(new FileLogsProvider(sampleData), new DBSCANAlgorithm()).parser(new MockParser()).build();
 
         Sherlock<TestCaseCluster> sherlock = new TestCaseSherlock(config);
 
-        SherlockConfig config2 = SherlockConfig.builder(new DirLogsProvider(testLogsPath)).build();
+        SherlockConfig config2 = SherlockConfig.builder(new DirLogsProvider(testLogsPath), new DBSCANAlgorithm()).build();
 
         Sherlock<TestCaseCluster> sherlock2 = new TestCaseSherlock(config2);
 

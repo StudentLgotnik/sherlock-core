@@ -1,7 +1,7 @@
 package com.mkaza.sherlock.clusterer;
 
-import com.mkaza.sherlock.clusterer.impl.DBSCANConfig;
 import com.mkaza.sherlock.clusterer.impl.DBSCANSherlockClusterer;
+import com.mkaza.sherlock.clusterer.impl.DBSCANParameters;
 import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.NullArgumentException;
 import org.apache.commons.math3.ml.clustering.Cluster;
@@ -86,7 +86,7 @@ public class SherlockClustererTest {
         };
 
         DBSCANSherlockClusterer<DoublePoint> clusterer = new DBSCANSherlockClusterer<>(
-                DBSCANConfig.builder()
+                DBSCANParameters.builder()
                         .epsilon(2.0).minPts(5)
                         .distanceMeasure(new EuclideanDistance())
                         .excludeNoiseNodes(true)
@@ -145,7 +145,7 @@ public class SherlockClustererTest {
         };
 
         DBSCANSherlockClusterer<DoublePoint> clusterer = new DBSCANSherlockClusterer<>(
-                DBSCANConfig.builder()
+                DBSCANParameters.builder()
                         .epsilon(3.0).minPts(3)
                         .distanceMeasure(new EuclideanDistance())
                         .excludeNoiseNodes(true)
@@ -163,7 +163,7 @@ public class SherlockClustererTest {
     @Test(expected = MathIllegalArgumentException.class)
     public void testNegativeEps() {
         DBSCANSherlockClusterer<DoublePoint> clusterer = new DBSCANSherlockClusterer<>(
-                DBSCANConfig.builder()
+                DBSCANParameters.builder()
                         .epsilon(-2.0).minPts(5)
                         .distanceMeasure(new EuclideanDistance())
                         .excludeNoiseNodes(true)
@@ -175,7 +175,7 @@ public class SherlockClustererTest {
     @Test(expected = MathIllegalArgumentException.class)
     public void testNegativeMinPts() {
         DBSCANSherlockClusterer<DoublePoint> clusterer = new DBSCANSherlockClusterer<>(
-                DBSCANConfig.builder()
+                DBSCANParameters.builder()
                         .epsilon(2.0).minPts(-5)
                         .distanceMeasure(new EuclideanDistance())
                         .excludeNoiseNodes(true)
@@ -186,7 +186,7 @@ public class SherlockClustererTest {
 
     @Test(expected = NullArgumentException.class)
     public void testNullDataset() {
-        DBSCANSherlockClusterer<DoublePoint> clusterer = new DBSCANSherlockClusterer<>();
+        DBSCANSherlockClusterer<DoublePoint> clusterer = new DBSCANSherlockClusterer<>(DBSCANParameters.builder().build());
         final List<Cluster<DoublePoint>> clusters = clusterer.cluster(null);
     }
 }
